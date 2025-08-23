@@ -1,30 +1,11 @@
 import mongoose from "mongoose";
+
 const userSchema = new mongoose.Schema({
+  _id: { type: String, required: true }, // Clerk user id
+  email: { type: String, required: true },
+  name: { type: String },
+  imageurl: { type: String },
+});
 
-  name: {
-    type: String,
-    required: true,
-  },        
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    imageUrl: {
-        type: String,
-        required: true,
-    },
-    _id : {
-        type: String,
-        required: true,
-        
-    },
-    cartItems: {
-        type: Object,
-        default: {},
-    },
-}, {minimize: false, timestamps: true});
-
-const User = mongoose.models.user || mongoose.model("User", userSchema);
-
-export default User;
+// ✅ Prevent OverwriteModelError in serverless
+export default mongoose.models.User || mongoose.model("User", userSchema);

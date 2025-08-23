@@ -29,11 +29,11 @@
 
 import mongoose from "mongoose";
 
-let isConnected = false; // Track connection status
+let isConnected = null; // cache the connection across hot reloads
 
 const connectDB = async () => {
   if (isConnected) {
-    // 🟢 Already connected
+    console.log("🟢 Using existing MongoDB connection");
     return;
   }
 
@@ -43,7 +43,9 @@ const connectDB = async () => {
 
   try {
     const db = await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: "quickcart", // optional, replace with your db name
+      dbName: "quickcart", // optional
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
 
     isConnected = db.connections[0].readyState === 1;

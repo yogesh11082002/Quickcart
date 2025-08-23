@@ -61,13 +61,12 @@
 //     }
 // )
 
-
 import { Inngest } from "inngest";
 import connectDB from "./db";
 import User from "@/models/User";
 
 export const inngest = new Inngest({
-  id: "quickcart-next", // your app ID (can be any string, stays the same)
+  id: "quickcart-next", // your app ID
   eventKey: process.env.INNGEST_EVENT_KEY,     // required for cloud
   signingKey: process.env.INNGEST_SIGNING_KEY, // required for cloud
 });
@@ -76,53 +75,81 @@ export const inngest = new Inngest({
 console.log("✅ Inngest initialized with app id:", "quickcart-next");
 
 // ----------------------
-// USER CREATION FUNCTION
+// USER CREATION FUNCTION (with upsert)
 // ----------------------
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event }) => {
-    console.log("📩 Received Clerk User Created Event:", event.data);
+    try {
+      console.log("📩 Received Clerk User Created Event:", event.data);
 
-    const { id, first_name, last_name, email_addresses, image_url } = event.data;
-    const userData = {
-      _id: id,
-      email: email_addresses?.[0]?.email_address,
-      name: `${first_name || ""} ${last_name || ""}`.trim(),
-      imageurl: image_url,
-    };
+      const { id, first_name, last_name, email_addresses, image_url } = event.data;
+      if (!id || !email_addresses?.length) {
+        console.error("❌ Missing required fields in Clerk event:", event.data);
+        return;
+      }
 
-    console.log("📝 Saving new user to DB:", userData);
+      const userData = {
+        _id: id,
+        email: email_addresses[0].email_address,
+        name: `${first_name || ""} ${last_name || ""}`.trim(),
+        imageUrl: image_url,
+      };
 
-    await connectDB();
-    await User.create(userData);
+      await connectDB();
+      const newUser = await User.findByIdAndUpdate(
+        id,
+        userData,
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
 
-    console.log("✅ User created in MongoDB:", id);
+      console.log("✅ User created/updated in MongoDB:", newUser);
+    } catch (err) {
+      console.error("❌ Error creating user:", err);
+      throw err; // Let Inngest retry
+    }
   }
 );
 
 // ----------------------
-// USER UPDATE FUNCTION
+// USER UPDATE FUNCTION (with safe email update)
 // ----------------------
 export const syncUserUpdation = inngest.createFunction(
   { id: "update-user-with-clerk" },
   { event: "clerk/user.updated" },
   async ({ event }) => {
-    console.log("📩 Received Clerk User Updated Event:", event.data);
+    try {
+      console.log("📩 Received Clerk User Updated Event:", event.data);
 
-    const { id, first_name, last_name, email_addresses, image_url } = event.data;
-    const userData = {
-      email: email_addresses?.[0]?.email_address,
-      name: `${first_name || ""} ${last_name || ""}`.trim(),
-      imageurl: image_url,
-    };
+      const { id, first_name, last_name, email_addresses, image_url } = event.data;
+      if (!id) {
+        console.error("❌ Missing user ID in update event:", event.data);
+        return;
+      }
 
-    console.log("📝 Updating user in DB:", { id, ...userData });
+      const userData = {
+        name: `${first_name || ""} ${last_name || ""}`.trim(),
+        imageUrl: image_url,
+      };
 
-    await connectDB();
-    await User.findByIdAndUpdate(id, userData);
+      // only update email if present
+      if (email_addresses?.[0]?.email_address) {
+        userData.email = email_addresses[0].email_address;
+      }
 
-    console.log("✅ User updated in MongoDB:", id);
+      await connectDB();
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { $set: userData },
+        { upsert: true, new: true } // ensures user is created if missing
+      );
+
+      console.log("✅ User updated in MongoDB:", updatedUser);
+    } catch (err) {
+      console.error("❌ Error updating user:", err);
+      throw err;
+    }
   }
 );
 
@@ -133,15 +160,26 @@ export const syncUserDeletion = inngest.createFunction(
   { id: "delete-user-with-clerk" },
   { event: "clerk/user.deleted" },
   async ({ event }) => {
-    console.log("📩 Received Clerk User Deleted Event:", event.data);
+    try {
+      console.log("📩 Received Clerk User Deleted Event:", event.data);
 
-    const { id } = event.data;
+      const { id } = event.data;
+      if (!id) {
+        console.error("❌ Missing user ID in delete event:", event.data);
+        return;
+      }
 
-    console.log("🗑️ Deleting user from DB:", id);
+      await connectDB();
+      const deletedUser = await User.findByIdAndDelete(id);
 
-    await connectDB();
-    await User.findByIdAndDelete(id);
-
-    console.log("✅ User deleted from MongoDB:", id);
+      if (!deletedUser) {
+        console.warn("⚠️ No user found to delete:", id);
+      } else {
+        console.log("✅ User deleted from MongoDB:", id);
+      }
+    } catch (err) {
+      console.error("❌ Error deleting user:", err);
+      throw err;
+    }
   }
 );

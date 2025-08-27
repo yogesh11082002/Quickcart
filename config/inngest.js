@@ -143,9 +143,9 @@ export const syncUserCreation = inngest.createFunction(
   { event: "clerk/user.created" },
   async ({ event }) => {
     try {
-      console.log("📩 Received Clerk User Created Event:", event.data);
-
+      // Clerk sends full user data here
       const { id, first_name, last_name, email_addresses, image_url } = event.data;
+
       if (!id || !email_addresses?.length) {
         console.error("❌ Missing required fields in Clerk event:", event.data);
         return;
@@ -155,7 +155,7 @@ export const syncUserCreation = inngest.createFunction(
         _id: id,
         email: email_addresses[0].email_address,
         name: `${first_name || ""} ${last_name || ""}`.trim(),
-        imageUrl: image_url, // ✅ fixed field
+        imageUrl: image_url, // ✅ matches schema
       };
 
       await connectDB();
@@ -165,7 +165,8 @@ export const syncUserCreation = inngest.createFunction(
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      console.log("✅ User created/updated in MongoDB:", newUser);
+      // Use JSON.stringify so URL isn’t truncated in logs
+      console.log("✅ User created/updated in MongoDB:", JSON.stringify(newUser, null, 2));
     } catch (err) {
       console.error("❌ Error creating user:", err);
       throw err; // Let Inngest retry
@@ -174,16 +175,15 @@ export const syncUserCreation = inngest.createFunction(
 );
 
 // ----------------------
-// USER UPDATE FUNCTION (with safe email update)
+// USER UPDATE FUNCTION
 // ----------------------
 export const syncUserUpdation = inngest.createFunction(
   { id: "update-user-with-clerk" },
   { event: "clerk/user.updated" },
   async ({ event }) => {
     try {
-      console.log("📩 Received Clerk User Updated Event:", event.data);
-
       const { id, first_name, last_name, email_addresses, image_url } = event.data;
+
       if (!id) {
         console.error("❌ Missing user ID in update event:", event.data);
         return;
@@ -191,10 +191,9 @@ export const syncUserUpdation = inngest.createFunction(
 
       const userData = {
         name: `${first_name || ""} ${last_name || ""}`.trim(),
-        imageUrl: image_url, // ✅ fixed field
+        imageUrl: image_url, // ✅ matches schema
       };
 
-      // only update email if present
       if (email_addresses?.[0]?.email_address) {
         userData.email = email_addresses[0].email_address;
       }
@@ -206,7 +205,7 @@ export const syncUserUpdation = inngest.createFunction(
         { upsert: true, new: true }
       );
 
-      console.log("✅ User updated in MongoDB:", updatedUser);
+      console.log("✅ User updated in MongoDB:", JSON.stringify(updatedUser, null, 2));
     } catch (err) {
       console.error("❌ Error updating user:", err);
       throw err;
@@ -222,9 +221,8 @@ export const syncUserDeletion = inngest.createFunction(
   { event: "clerk/user.deleted" },
   async ({ event }) => {
     try {
-      console.log("📩 Received Clerk User Deleted Event:", event.data);
-
       const { id } = event.data;
+
       if (!id) {
         console.error("❌ Missing user ID in delete event:", event.data);
         return;

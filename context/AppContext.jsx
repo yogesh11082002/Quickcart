@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+
 export const AppContext = createContext();
 
 export const useAppContext = () => {
@@ -32,6 +33,10 @@ export const AppContextProvider = (props) => {
 
   const fetchUserData = async () => {
   try {
+
+    if (user.publicMetadata.role==='seller') {
+        setIsSeller(true);
+    }
     console.log("Fetching user data... user:", user);
     const token = await getToken();
     console.log("Token:", token);

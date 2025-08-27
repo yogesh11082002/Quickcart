@@ -30,28 +30,29 @@ export const AppContextProvider = (props) => {
         setProducts(productsDummyData)
     }
 
-    const fetchUserData = async () => {
+  const fetchUserData = async () => {
+  try {
+    console.log("Fetching user data... user:", user);
+    const token = await getToken();
+    console.log("Token:", token);
 
-       try {
-         if(user.publicMetadata.role==='seller'){
-                setIsSeller(true);
-        }
+    const { data } = await axios.get('/api/user/data', { 
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log("API Response:", data);
 
-        const  token = await getToken();
-        const{data} = await axios.get('/api/user/data',{ headers :{Authorization : `Bearer ${token}`}})
-
-        if (data.success) {
-            setUserData(data.user)
-            setCartItems(data.user.cartItems)
-        }
-            else{
-                toast.error(data.message)
-            }
-    
-       } catch (error) {
-        toast.error(error.message)
-       }
+    if (data.success) {
+      setUserData(data.user);
+      setCartItems(data.user.cartItems);
+    } else {
+      toast.error(data.message);
     }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    toast.error(error.message);
+  }
+}
+
 
     const addToCart = async (itemId) => {
 

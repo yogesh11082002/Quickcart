@@ -142,36 +142,32 @@ export const AppContextProvider = ({ children }) => {
 
   // Fetch user data from API
   const fetchUserData = async () => {
-    if (!user) return;
-    setLoadingUser(true);
-
-    try {
-      if (user.publicMetadata.role === 'seller') setIsSeller(true);
-
-      console.log("Fetching user data... user:", user);
-
-      const token = await getToken();
-      console.log("Token:", token);
-
-      const { data } = await axios.get('/api/user/data', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log("API Response:", data);
-
-      if (data.success) {
-        setUserData(data.user);
-        setCartItems(data.user.cartItems || {});
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      toast.error(error.message);
-    } finally {
-      setLoadingUser(false);
+  try {
+    if (user.publicMetadata.role === "seller") {
+      setIsSeller(true);
     }
-  };
+
+    // Don't log token
+    const token = await getToken();
+
+    const { data } = await axios.get("/api/user/data", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("API Response:", data); // Only log the response
+
+    if (data.success) {
+      setUserData(data.user);
+      setCartItems(data.user.cartItems);
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    toast.error(error.message);
+  }
+};
+
 
   // Cart functions
   const addToCart = (itemId) => {

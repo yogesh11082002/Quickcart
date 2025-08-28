@@ -18,7 +18,7 @@
 
 //   const fetchSellerProduct = async () => {
 //  try {
-    
+
 //     const token = await getToken();
 
 //     const { data } = await axios.get("/api/product/seller-list", {
@@ -27,7 +27,6 @@
 
 //     // console.log("API Response:", data); // Only log the response
 //     console.log("Seller list response:", data);
-
 
 //     if (data.success) {
 //      setProducts(data.products);
@@ -45,7 +44,7 @@
 //     if (user) {
 //       fetchSellerProduct();
 //     }
-    
+
 //   }, [user])
 
 //   return (
@@ -105,8 +104,6 @@
 // };
 
 // export default ProductList;
-
-
 
 "use client";
 import React, { useEffect, useState } from "react";
@@ -268,11 +265,11 @@ const ProductList = () => {
                       {/* Visit */}
                       <button
                         onClick={() => router.push(`/product/${product._id}`)}
-                        className="flex items-center gap-1 px-2 py-2 bg-orange-600 text-white rounded-md"
+                        className="px-2 py-2 bg-orange-600 text-white rounded-md flex items-center gap-1"
                       >
-                        <span className="hidden md:block">Visit</span>
+                        <span>Visit</span>
                         <Image
-                          className="h-3.5"
+                          className="h-3.5 w-3.5"
                           src={assets.redirect_icon}
                           alt="redirect_icon"
                         />

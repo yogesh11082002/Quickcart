@@ -265,13 +265,13 @@ const ProductList = () => {
                       {/* Visit */}
                       <button
                         onClick={() => router.push(`/product/${product._id}`)}
-                        className="px-2 py-2 bg-orange-600 text-white rounded-md flex items-center gap-1"
+                        className="px-3 py-2 bg-orange-600 text-white rounded-md flex items-center gap-2 hover:bg-orange-700 transition"
                       >
-                        <span>Visit</span>
+                        <span className="text-sm font-medium">Visit</span>
                         <Image
-                          className="h-3.5 w-3.5"
                           src={assets.redirect_icon}
                           alt="redirect_icon"
+                          className="w-4 h-4"
                         />
                       </button>
 

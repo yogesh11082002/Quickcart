@@ -26,6 +26,8 @@ const ProductList = () => {
     });
 
     // console.log("API Response:", data); // Only log the response
+    console.log("Seller list response:", data);
+
 
     if (data.success) {
      setProducts(data.products);

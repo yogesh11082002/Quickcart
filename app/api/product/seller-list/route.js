@@ -26,7 +26,7 @@ export async function GET(request) {
     }
 
     await connectDB();
-    const products = await Product.find({ sellerId: userId }); // better: filter by seller
+    const products = await Product.find({ }); 
     return NextResponse.json({ success: true, products });
   } catch (error) {
     console.error("API Error:", error);

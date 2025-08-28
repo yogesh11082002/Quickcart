@@ -105,8 +105,7 @@
 // };
 
 // export default ProductList;
-
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
@@ -124,6 +123,16 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // for editing
+  const [editProduct, setEditProduct] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    category: "",
+    offerPrice: "",
+    image: "",
+  });
+
+  // Fetch seller products
   const fetchSellerProduct = async () => {
     try {
       const token = await getToken();
@@ -143,7 +152,7 @@ const ProductList = () => {
     }
   };
 
-  // 🔹 handle delete function
+  // Delete product
   const handleDelete = async (id) => {
     try {
       const token = await getToken();
@@ -153,13 +162,51 @@ const ProductList = () => {
 
       if (data.success) {
         toast.success("Product deleted!");
-        setProducts(products.filter((p) => p._id !== id)); // remove from UI
+        setProducts(products.filter((p) => p._id !== id));
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("Failed to delete product");
+    }
+  };
+
+  // Open Edit Modal
+  const handleEditClick = (product) => {
+    setEditProduct(product);
+    setEditForm({
+      name: product.name,
+      category: product.category,
+      offerPrice: product.offerPrice,
+      image: product.image[0],
+    });
+  };
+
+  // Save Edited Product
+  const handleSaveEdit = async () => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.put(
+        `/api/product/${editProduct._id}`,
+        editForm,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (data.success) {
+        toast.success("Product updated!");
+        setProducts(
+          products.map((p) =>
+            p._id === editProduct._id ? { ...p, ...editForm } : p
+          )
+        );
+        setEditProduct(null);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Edit error:", error);
+      toast.error("Failed to update product");
     }
   };
 
@@ -193,7 +240,6 @@ const ProductList = () => {
                 </tr>
               </thead>
 
-              {/* ✅ Updated tbody with Visit, Edit, Delete */}
               <tbody className="text-sm text-gray-500">
                 {products.map((product, index) => (
                   <tr key={index} className="border-t border-gray-500/20">
@@ -215,9 +261,8 @@ const ProductList = () => {
                     </td>
                     <td className="px-4 py-3">${product.offerPrice}</td>
 
-                    {/* 🔥 Actions column */}
                     <td className="px-4 py-3 max-sm:hidden flex gap-2">
-                      {/* Visit Button */}
+                      {/* Visit */}
                       <button
                         onClick={() => router.push(`/product/${product._id}`)}
                         className="flex items-center gap-1 px-2 py-2 bg-orange-600 text-white rounded-md"
@@ -230,17 +275,15 @@ const ProductList = () => {
                         />
                       </button>
 
-                      {/* Edit Button */}
+                      {/* Edit */}
                       <button
-                        onClick={() =>
-                          router.push(`/seller/edit-product/${product._id}`)
-                        }
+                        onClick={() => handleEditClick(product)}
                         className="px-2 py-2 bg-blue-600 text-white rounded-md"
                       >
                         Edit
                       </button>
 
-                      {/* Delete Button */}
+                      {/* Delete */}
                       <button
                         onClick={() => handleDelete(product._id)}
                         className="px-2 py-2 bg-red-600 text-white rounded-md"
@@ -255,6 +298,67 @@ const ProductList = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      {editProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-md w-96">
+            <h3 className="text-lg font-medium mb-4">Edit Product</h3>
+            <input
+              type="text"
+              placeholder="Name"
+              value={editForm.name}
+              onChange={(e) =>
+                setEditForm({ ...editForm, name: e.target.value })
+              }
+              className="w-full border px-2 py-1 mb-2"
+            />
+            <input
+              type="text"
+              placeholder="Category"
+              value={editForm.category}
+              onChange={(e) =>
+                setEditForm({ ...editForm, category: e.target.value })
+              }
+              className="w-full border px-2 py-1 mb-2"
+            />
+            <input
+              type="number"
+              placeholder="Price"
+              value={editForm.offerPrice}
+              onChange={(e) =>
+                setEditForm({ ...editForm, offerPrice: e.target.value })
+              }
+              className="w-full border px-2 py-1 mb-2"
+            />
+            <input
+              type="text"
+              placeholder="Image URL"
+              value={editForm.image}
+              onChange={(e) =>
+                setEditForm({ ...editForm, image: e.target.value })
+              }
+              className="w-full border px-2 py-1 mb-2"
+            />
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setEditProduct(null)}
+                className="px-3 py-1 bg-gray-400 text-white rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-3 py-1 bg-blue-600 text-white rounded-md"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );

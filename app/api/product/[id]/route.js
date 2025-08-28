@@ -1,13 +1,12 @@
 import connectDB from "@/config/db";
 import Product from "@/models/Product";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server"; // ✅ use only this
 import { NextResponse } from "next/server";
 
-// ✅ DELETE product
+// DELETE product
 export async function DELETE(request, { params }) {
   try {
-    const { userId } = auth(request);
-
+    const { userId } = auth(request); // ✅ correct
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
@@ -29,7 +28,6 @@ export async function DELETE(request, { params }) {
     }
 
     await Product.deleteOne({ _id: params.id, sellerId: userId });
-
     return NextResponse.json({ success: true, message: "Product deleted" });
   } catch (error) {
     return NextResponse.json(
@@ -39,11 +37,10 @@ export async function DELETE(request, { params }) {
   }
 }
 
-// ✅ UPDATE product
+// UPDATE product
 export async function PUT(request, { params }) {
   try {
-    const { userId } = auth(request);
-
+    const { userId } = auth(request); // ✅ fix: use auth, not getAuth
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },

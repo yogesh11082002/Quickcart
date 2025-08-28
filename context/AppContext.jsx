@@ -154,7 +154,7 @@ export const AppContextProvider = ({ children }) => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("API Response:", data); // Only log the response
+    // console.log("API Response:", data); // Only log the response
 
     if (data.success) {
       setUserData(data.user);

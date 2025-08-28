@@ -74,9 +74,9 @@ export async function POST(request) {
   } catch (error) {
 
 
-     NextResponse.json({
+     return NextResponse.json({
         success: false,
-        message: error.message
+        message: error.message,
       });
   }
 }

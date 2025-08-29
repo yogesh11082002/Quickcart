@@ -48,37 +48,45 @@ const token = await getToken(); // no template specified
   };
 
   // ✅ Create Order
-  const createOrder = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select an address before placing an order");
-      return;
-    }
-    try {
-      const token = await getToken();
+ const createOrder = async () => {
+  if (!selectedAddress) {
+    toast.error("Please select an address before placing an order");
+    return;
+  }
 
-      const { data } = await axios.post(
-        "/api/order/create",
-        {
-          items: user?.cartItems || [],
-          address: selectedAddress._id,
-        },
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+  try {
+    const token = await getToken();
 
-      if (data.success) {
-        toast.success("Order placed successfully!");
-        setCartItems({})
-        router.push("/order-placed");
-      } else {
-        toast.error(data.message || "Failed to place order");
+    console.log("Creating order with:", {
+      items: user?.cartItems,
+      address: selectedAddress,
+      token,
+    });
+
+    const { data } = await axios.post(
+      "/api/order/create",
+      {
+        items: user?.cartItems || [],
+        address: selectedAddress._id, // or entire address object
+      },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
-    } catch (error) {
-      console.error("Error creating order:", error);
-      toast.error(error.response?.data?.message || error.message || "Order failed");
+    );
+
+    if (data.success) {
+      toast.success("Order placed successfully!");
+      // setCartItems({}) // <-- only if available in context
+      router.push("/order-placed");
+    } else {
+      toast.error(data.message || "Failed to place order");
     }
-  };
+  } catch (error) {
+    console.error("Error creating order:", error.response?.data || error);
+    toast.error(error.response?.data?.message || error.message || "Order failed");
+  }
+};
+
 
   // ✅ Load addresses when user is ready
   useEffect(() => {

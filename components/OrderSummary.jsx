@@ -48,7 +48,7 @@ const token = await getToken(); // no template specified
   };
 
   // ✅ Create Order
- const createOrder = async () => {
+const createOrder = async () => {
   if (!selectedAddress) {
     toast.error("Please select an address before placing an order");
     return;
@@ -57,17 +57,24 @@ const token = await getToken(); // no template specified
   try {
     const token = await getToken();
 
-    console.log("Creating order with:", {
-      items: user?.cartItems,
-      address: selectedAddress,
-      token,
+    // 🔥 Convert cart object to array
+    const formattedItems = Object.entries(user?.cartItems || {}).map(
+      ([productId, quantity]) => ({
+        productId,
+        quantity,
+      })
+    );
+
+    console.log("🛒 Sending order data:", {
+      items: formattedItems,
+      address: selectedAddress._id,
     });
 
     const { data } = await axios.post(
       "/api/order/create",
       {
-        items: user?.cartItems || [],
-        address: selectedAddress._id, // or entire address object
+        items: formattedItems,
+        addressId: selectedAddress._id, // ✅ renamed to match backend convention
       },
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -76,7 +83,7 @@ const token = await getToken(); // no template specified
 
     if (data.success) {
       toast.success("Order placed successfully!");
-      // setCartItems({}) // <-- only if available in context
+      // setCartItems({}) // only if you have it
       router.push("/order-placed");
     } else {
       toast.error(data.message || "Failed to place order");
@@ -86,6 +93,7 @@ const token = await getToken(); // no template specified
     toast.error(error.response?.data?.message || error.message || "Order failed");
   }
 };
+
 
 
   // ✅ Load addresses when user is ready

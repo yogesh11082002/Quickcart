@@ -54,16 +54,22 @@ const createOrder = async () => {
     return;
   }
 
+  // 🛑 Fix: Handle empty cart
+  if (!user?.cartItems || Object.keys(user.cartItems).length === 0) {
+    toast.error("Your cart is empty!");
+    return;
+  }
+
   try {
     const token = await getToken();
 
-    // 🔥 Convert cart object to array
-    const formattedItems = Object.entries(user?.cartItems || {}).map(
-      ([productId, quantity]) => ({
-        productId,
-        quantity,
-      })
-    );
+    // 🔥 Convert cartItems to correct format
+    const formattedItems = Array.isArray(user.cartItems)
+      ? user.cartItems
+      : Object.entries(user.cartItems).map(([productId, quantity]) => ({
+          productId,
+          quantity,
+        }));
 
     console.log("🛒 Sending order data:", {
       items: formattedItems,
@@ -74,7 +80,7 @@ const createOrder = async () => {
       "/api/order/create",
       {
         items: formattedItems,
-        addressId: selectedAddress._id, // ✅ renamed to match backend convention
+        addressId: selectedAddress._id,
       },
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -83,7 +89,7 @@ const createOrder = async () => {
 
     if (data.success) {
       toast.success("Order placed successfully!");
-      // setCartItems({}) // only if you have it
+      // reset cart if you have setCartItems
       router.push("/order-placed");
     } else {
       toast.error(data.message || "Failed to place order");
@@ -93,6 +99,7 @@ const createOrder = async () => {
     toast.error(error.response?.data?.message || error.message || "Order failed");
   }
 };
+
 
 
 

@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs"; // ✅ Only if using Clerk
 
 const OrderSummary = () => {
-  const { currency, router, getCartCount, getCartAmount, user } = useAppContext();
+  const { currency, router, getCartCount, getCartAmount, user, cartItems } = useAppContext();
 
   // Clerk Auth (replace with your own getToken if not using Clerk)
   const { getToken } = useAuth();
@@ -54,8 +54,7 @@ const createOrder = async () => {
     return;
   }
 
-  // 🛑 Fix: Handle empty cart
-  if (!user?.cartItems || Object.keys(user.cartItems).length === 0) {
+  if (!cartItems || Object.keys(cartItems).length === 0) {
     toast.error("Your cart is empty!");
     return;
   }
@@ -63,13 +62,11 @@ const createOrder = async () => {
   try {
     const token = await getToken();
 
-    // 🔥 Convert cartItems to correct format
-    const formattedItems = Array.isArray(user.cartItems)
-      ? user.cartItems
-      : Object.entries(user.cartItems).map(([productId, quantity]) => ({
-          productId,
-          quantity,
-        }));
+    // Convert { productId: qty } → [{ productId, quantity }]
+    const formattedItems = Object.entries(cartItems).map(([productId, quantity]) => ({
+      productId,
+      quantity,
+    }));
 
     console.log("🛒 Sending order data:", {
       items: formattedItems,
@@ -89,7 +86,8 @@ const createOrder = async () => {
 
     if (data.success) {
       toast.success("Order placed successfully!");
-      // reset cart if you have setCartItems
+      // clear cart if needed
+      // setCartItems({});  // only if you expose setCartItems in context
       router.push("/order-placed");
     } else {
       toast.error(data.message || "Failed to place order");
@@ -99,6 +97,7 @@ const createOrder = async () => {
     toast.error(error.response?.data?.message || error.message || "Order failed");
   }
 };
+
 
 
 

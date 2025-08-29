@@ -201,7 +201,7 @@ const token = await getToken(); // no template specified
       return;
     }
     try {
-      const token = await getToken({ template: "default" }).catch(() => null);
+      const token = await getToken();
 
       const { data } = await axios.post(
         "/api/orders",

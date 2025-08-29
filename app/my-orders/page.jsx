@@ -4,24 +4,47 @@ import { assets, orderDummyData } from "@/assets/assets";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
 import Footer from "@/components/Footer";
+import { useAuth, useUser } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Loading from "@/components/Loading";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const MyOrders = () => {
 
     const { currency } = useAppContext();
+    const { user } = useUser();
+      const { getToken } = useAuth();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchOrders = async () => {
-        setOrders(orderDummyData)
+        try {
+
+      const token = await getToken();
+      const { data } = await axios.get("/api/order/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        setOrders(data.orders.reverse());
         setLoading(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error(error.message);
+    }
     }
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        if (user) {
+            fetchOrders();
+        }
+        
+    }, [user]);
 
     return (
         <>

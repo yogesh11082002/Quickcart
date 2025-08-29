@@ -146,8 +146,9 @@ const AddAddress = () => {
     }
 
     try {
-      // ✅ Always request token for your API (pass correct template if needed)
-      const token = await getToken({ template: "default" });  
+    
+const token = await getToken(); // no template specified
+
 
       const { data } = await axios.post(
         "/api/user/add-address",

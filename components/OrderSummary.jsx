@@ -166,7 +166,9 @@ const OrderSummary = () => {
   // ✅ Fetch User Addresses
   const fetchUserAddresses = async () => {
     try {
-      const token = await getToken({ template: "default" }).catch(() => null);
+     
+const token = await getToken(); // no template specified
+
 
       const { data } = await axios.get("/api/user/get-address", {
         headers: token ? { Authorization: `Bearer ${token}` } : {},

@@ -1,5 +1,4 @@
 
-
 // "use client";
 // import React, { useEffect, useState } from "react";
 // import { assets } from "@/assets/assets";
@@ -24,7 +23,7 @@
 //     name: "",
 //     category: "",
 //     offerPrice: "",
-//     image: "",
+//     image: [""], // Keep image as array
 //   });
 
 //   // Fetch seller products
@@ -74,7 +73,7 @@
 //       name: product.name,
 //       category: product.category,
 //       offerPrice: product.offerPrice,
-//       image: product.image[0],
+//       image: product.image, // Keep it as array
 //     });
 //   };
 
@@ -163,7 +162,6 @@
 //                         className="flex items-center gap-1 px-2 py-2 bg-orange-600 text-white rounded-md"
 //                       >
 //                         <span className="hidden md:block">Visit</span>
-                        
 //                       </button>
 
 //                       {/* Edit */}
@@ -225,9 +223,9 @@
 //             <input
 //               type="text"
 //               placeholder="Image URL"
-//               value={editForm.image}
+//               value={editForm.image[0]}
 //               onChange={(e) =>
-//                 setEditForm({ ...editForm, image: e.target.value })
+//                 setEditForm({ ...editForm, image: [e.target.value] })
 //               }
 //               className="w-full border px-2 py-1 mb-2"
 //             />
@@ -276,13 +274,13 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // for editing
+  // For editing
   const [editProduct, setEditProduct] = useState(null);
   const [editForm, setEditForm] = useState({
     name: "",
     category: "",
     offerPrice: "",
-    image: [""], // Keep image as array
+    images: [""], // Now array of multiple images
   });
 
   // Fetch seller products
@@ -332,8 +330,26 @@ const ProductList = () => {
       name: product.name,
       category: product.category,
       offerPrice: product.offerPrice,
-      image: product.image, // Keep it as array
+      images: product.image, // Array of images
     });
+  };
+
+  // Update specific image URL
+  const updateImage = (index, value) => {
+    const newImages = [...editForm.images];
+    newImages[index] = value;
+    setEditForm({ ...editForm, images: newImages });
+  };
+
+  // Add new image input
+  const addImageField = () => {
+    setEditForm({ ...editForm, images: [...editForm.images, ""] });
+  };
+
+  // Remove an image input
+  const removeImageField = (index) => {
+    const newImages = editForm.images.filter((_, i) => i !== index);
+    setEditForm({ ...editForm, images: newImages });
   };
 
   // Save Edited Product
@@ -415,23 +431,18 @@ const ProductList = () => {
                     <td className="px-4 py-3">${product.offerPrice}</td>
 
                     <td className="px-4 py-3 max-sm:hidden flex gap-2">
-                      {/* Visit */}
                       <button
                         onClick={() => router.push(`/product/${product._id}`)}
                         className="flex items-center gap-1 px-2 py-2 bg-orange-600 text-white rounded-md"
                       >
                         <span className="hidden md:block">Visit</span>
                       </button>
-
-                      {/* Edit */}
                       <button
                         onClick={() => handleEditClick(product)}
                         className="px-2 py-2 bg-blue-600 text-white rounded-md"
                       >
                         Edit
                       </button>
-
-                      {/* Delete */}
                       <button
                         onClick={() => handleDelete(product._id)}
                         className="px-2 py-2 bg-red-600 text-white rounded-md"
@@ -449,7 +460,7 @@ const ProductList = () => {
 
       {/* Edit Modal */}
       {editProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center overflow-auto">
           <div className="bg-white p-6 rounded-md w-96">
             <h3 className="text-lg font-medium mb-4">Edit Product</h3>
             <input
@@ -479,15 +490,34 @@ const ProductList = () => {
               }
               className="w-full border px-2 py-1 mb-2"
             />
-            <input
-              type="text"
-              placeholder="Image URL"
-              value={editForm.image[0]}
-              onChange={(e) =>
-                setEditForm({ ...editForm, image: [e.target.value] })
-              }
-              className="w-full border px-2 py-1 mb-2"
-            />
+
+            {/* Multiple images */}
+            {editForm.images.map((img, idx) => (
+              <div key={idx} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder={`Image URL ${idx + 1}`}
+                  value={img}
+                  onChange={(e) => updateImage(idx, e.target.value)}
+                  className="w-full border px-2 py-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImageField(idx)}
+                  className="px-2 py-1 bg-red-600 text-white rounded-md"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addImageField}
+              className="px-2 py-1 bg-green-600 text-white rounded-md mb-4"
+            >
+              + Add Image
+            </button>
 
             <div className="flex justify-end gap-2 mt-4">
               <button

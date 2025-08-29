@@ -77,7 +77,7 @@ const createOrder = async () => {
       "/api/order/create",
       {
         items: formattedItems,
-        addressId: selectedAddress._id,
+        address: selectedAddress._id,
       },
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},

@@ -26,9 +26,23 @@ export const AppContextProvider = ({ children }) => {
 
   // Fetch products (dummy data for now)
   const fetchProductData = async () => {
-    setProducts(productsDummyData);
-  };
+   try {
+   
 
+    const { data } = await axios.get("/api/product/list");
+
+    if (data.success) {
+      setProducts(data.products)
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    toast.error(error.message);
+  }
+};
+
+  
   // Fetch user data from API
   const fetchUserData = async () => {
   try {

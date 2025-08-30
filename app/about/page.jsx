@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import aboutImg from "@/public/about.png"; // Replace with your image
 import { assets } from "@/assets/assets";
+import Navbar from "@/components/Navbar";
 
 
 gsap.registerPlugin(ScrollTrigger);
@@ -59,6 +60,9 @@ const AboutPage = () => {
 
   return (
       <>
+       {/* ✅ Navbar at top */}
+      <Navbar /> 
+      
     <section className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-800">
       {/* Hero Section */}
       <div className="px-6 md:px-16 lg:px-32 pt-16 text-center">

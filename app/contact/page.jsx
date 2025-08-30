@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { usePathname } from "next/navigation"; // ✅ import
 import { assets } from "@/assets/assets";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 const ContactPage = () => {
 
@@ -96,6 +97,8 @@ const ContactPage = () => {
 
   return (
     <>
+     {/* ✅ Navbar at top */}
+      <Navbar /> 
     <section className="min-h-screen px-6 md:px-16 lg:px-32 py-16 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 text-gray-100">
       {/* Header */}
       <h1

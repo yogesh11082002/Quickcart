@@ -117,6 +117,61 @@ export const CartIcon = () => {
 
   )
 }
+export const AboutIcon = () => (
+  <svg
+    className="w-5 h-5 text-gray-800"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+    />
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M12 8h.01M11 11h1v5h1"
+    />
+  </svg>
+);
+
+export const ContactIcon = () => (
+  <svg
+    className="w-5 h-5 text-gray-800"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M4 4h16v16H4V4Z"
+    />
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="m4 4 8 7 8-7"
+    />
+  </svg>
+);
+
+
 
 export const BoxIcon = () => (
   <svg className="w-5 h-5 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">

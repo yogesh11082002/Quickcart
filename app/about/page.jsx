@@ -5,6 +5,8 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import aboutImg from "@/public/about.png"; // Replace with your image
+import { assets } from "@/assets/assets";
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,6 +58,7 @@ const AboutPage = () => {
   }, []);
 
   return (
+      <>
     <section className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-800">
       {/* Hero Section */}
       <div className="px-6 md:px-16 lg:px-32 pt-16 text-center">
@@ -124,7 +127,24 @@ const AboutPage = () => {
         ))}
       </div>
     </section>
+       <div className='container px-4 2xl:px-20 bg-gray-200 mx-auto flex items-center justify-between gap-4 py-3 mt-20'>
+           <Image width={160} src={assets.logo} alt="" />
+          <p className='flex-1 border-1 flex justify-center items-center border-gray-400 pl-4 text-sm  text-gray-900  max-sm:hidden'>Copyright @YogeshThakur | All Rights Reserved </p>
+          <div className='flex items-center gap-2.5'>
+            <a href="https://www.facebook.com/yogesh.sengar.589">
+              <Image width={38} src={assets.facebook_icon} alt="" />
+              </a>
+            <a href="https://twitter.com/YogeshT12554000">
+              <Image width={38} src={assets.twitter_icon} alt="" />
+              </a>
+              <a href="https://www.instagram.com/yogesh_thakur_1108">
+              <Image width={38} src={assets.instagram_icon} alt="" />
+              </a>
+          </div>
+        </div>
+      </>
   );
+  
 };
 
 export default AboutPage;
